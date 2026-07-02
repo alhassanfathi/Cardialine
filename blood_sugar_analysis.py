@@ -7,6 +7,13 @@ LOW_BLOOD_SUGAR_THRESHOLD = 70.0
 HIGH_BLOOD_SUGAR_THRESHOLD = 180.0
 
 
+def _parse_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def read_blood_sugar_levels(csv_path):
     levels = []
     with open(csv_path, newline="", encoding="utf-8") as csv_file:
@@ -16,7 +23,10 @@ def read_blood_sugar_levels(csv_path):
                 value = row.get("blood_sugar")
                 if value in (None, ""):
                     continue
-                levels.append(float(value))
+                parsed_value = _parse_float(value)
+                if parsed_value is None:
+                    continue
+                levels.append(parsed_value)
             return levels
 
         csv_file.seek(0)
@@ -24,7 +34,10 @@ def read_blood_sugar_levels(csv_path):
         for row in fallback_reader:
             if not row:
                 continue
-            levels.append(float(row[0]))
+            parsed_value = _parse_float(row[0])
+            if parsed_value is None:
+                continue
+            levels.append(parsed_value)
     return levels
 
 
